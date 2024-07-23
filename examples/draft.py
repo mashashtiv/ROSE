@@ -60,3 +60,23 @@ def drive(world):
             return run(cur_pos_x, cur_pos_y, obs, world, min_x, max_x)
         case _:
             return actions.NONE
+
+    def pen(cur_pos_x, cur_pos_y, obs, world, min_x, max_x):
+        if min_x < cur_pos_x < max_x:
+            right_next_obs = world.get((cur_pos_x + 1, cur_pos_y - 2))
+            left_next_obs = world.get((cur_pos_x - 1, cur_pos_y - 2))
+            right_obs = world.get((cur_pos_x + 1, cur_pos_y - 1))
+            left_obs = world.get((cur_pos_x + 1, cur_pos_y - 1))
+            if right_next_obs == obstacles.PENGUIN and right_obs not in [obstacles.BIKE, obstacles.TRASH,
+                                                                         obstacles.BARRIER]:
+                return actions.RIGHT
+            elif left_next_obs == obstacles.PENGUIN and left_obs not in [obstacles.BIKE, obstacles.TRASH,
+                                                                         obstacles.BARRIER]:
+                return actions.LEFT
+            elif right_obs == obstacles.PENGUIN:
+                return actions.RIGHT, actions.PICKUP
+            elif left_obs == obstacles.PENGUIN:
+                return actions.LEFT, actions.PICKUP
+            else:
+                return actions.NONE
+        return actions.NONE
