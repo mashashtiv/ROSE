@@ -32,13 +32,9 @@ def main():
     same place for both drivers, otherwise, the obstacles will be genrated in
     random locations for each driver.
     """
-    if args.track_definition == "same":
-        config.is_track_random = False
-    else:
-        config.is_track_random = True
 
     log.info("starting server")
-    g = game.Game()
+    g = game.Game(seed=seed)
     h = net.Hub(g)
     reactor.listenTCP(config.game_port, net.PlayerFactory(h))
     root = static.File(config.web_root)
