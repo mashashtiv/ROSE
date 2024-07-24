@@ -14,7 +14,7 @@ def count(points, op):
     return sum_points
 
 
-def marge(op_1, op_2, op_3, points):
+def merge(op_1, op_2, op_3, points):
 
     if op_1 == 'no' and op_2 == 'no' and op_3 == 'no':
         return ['no']
@@ -51,17 +51,17 @@ def priorities(lane, step, points, bord, cur_pos_x , cur_pos_y):
     if step <= 0:
         return ["finish"]
 
-    points[lane].append(bord[cur_pos_x][cur_pos_y])
+    points += (bord[cur_pos_x][cur_pos_y])
 
-    R = [lane + 1] + priorities(lane+1, step-1, points, bord, cur_pos_x +1, cur_pos_y +1)
-    M = [lane] + priorities(lane, step - 1, points, bord, cur_pos_x, cur_pos_y +1)
-    L = [lane - 1] + priorities(lane -1, step - 1, points, bord, cur_pos_x -1, cur_pos_y +1)
+    R = ['r'] + priorities(lane+1, step-1, points, bord, cur_pos_x +1, cur_pos_y +1)
+    M = ['m'] + priorities(lane, step - 1, points, bord, cur_pos_x, cur_pos_y +1)
+    L = ['m'] + priorities(lane -1, step - 1, points, bord, cur_pos_x -1, cur_pos_y +1)
 
-    return marge(R, M, L, points)
+    return merge(R, M, L, points)
 
 
 
-points = [[],[],[]]
+points =
 bord = [[[-10], [+5], [+10]], [[+10], [0], [-10]]]
 lane = 1
 step = 1
