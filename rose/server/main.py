@@ -52,7 +52,7 @@ def main():
     else:
         print("error seed option was not selected")
 
-    log.info("This is the map seed", seed)
+    log.info(f"This is the map seed {seed}")
     log.info("starting server")
 
     g = game.Game()
