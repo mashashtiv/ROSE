@@ -54,7 +54,7 @@ class Track(object):
         Otherwise, the tracks will be identical.
         """
         row = [obstacles.NONE] * config.matrix_width
-        obstacle = obstacles.get_random_obstacle()
+        obstacle = self.get_random_obstacle()
         if config.is_track_random:
             for lane in range(config.max_players):
                 low = lane * config.cells_per_player
