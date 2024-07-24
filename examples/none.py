@@ -35,6 +35,59 @@ def run(cur_pos_x, cur_pos_y, obs, world, min_x, max_x):
         else:
             return actions.NONE
 
+def score(obs):
+    match obs:
+        case obstacles.NONE:
+            return 0
+        case obstacles.PENGUIN:
+            return 10
+        case obstacles.WATER:
+            return 5
+        case obstacles.CRACK:
+            return 4
+        case obstacles.TRASH:
+            return -10
+        case obstacles.BIKE:
+            return -10
+        case obstacles.BARRIER:
+            return -10
+        case _:
+            return 0
+
+def new(cur_pos_x, cur_pos_y, obs, world, min_x, max_x):
+        left = [world.get((cur_pos_x - 1, cur_pos_y - 1))]
+        left.append(score(left[0]))
+        print(f"Left lane: {left}")
+
+        right = [world.get((cur_pos_x + 1, cur_pos_y - 1))]
+        right.append(score(right[0]))
+        print(f"Right lane: {right}")
+
+        middle = [world.get((cur_pos_x, cur_pos_y - 1))]
+        middle.append(score(middle[0]))
+        print(f"Middle lane: {middle}")
+
+        best_lane = better(left, right, middle)
+        if best_lane == left:
+            return actions.LEFT
+        elif best_lane == right:
+            return actions.RIGHT
+        else:  # best_lane == middle
+            return actions.NONE
+
+def better(left, right, middle):
+    higher = max(left[1], right[1], middle[1])
+    if higher == left[1]:
+        return left
+    elif higher == right[1]:
+        return right
+    elif higher == middle[1]:
+        return middle
+    else:
+        print('fgbfrewrererg')
+        return middle
+
+
 def drive(world):
     cur_pos_x = world.car.x
     cur_pos_y = world.car.y
@@ -43,7 +96,6 @@ def drive(world):
     min_x, max_x = get_lane_range(cur_pos_x)
 
     obs = world.get((cur_pos_x, cur_pos_y - 1))
-    right_obs = world.get((cur_pos_x +1 , cur_pos_y - 1))
     match obs:
         case obstacles.NONE:
             return actions.NONE
@@ -54,19 +106,10 @@ def drive(world):
         case obstacles.CRACK:
             return actions.JUMP
         case obstacles.TRASH:
-            if cur_pos_x != max_x:
-                if right_obs == obstacles.PENGUIN:
-                    return actions.RIGHT
-            return run(cur_pos_x, cur_pos_y, obs, world, min_x, max_x)
+            return new(cur_pos_x, cur_pos_y, obs, world, min_x, max_x)
         case obstacles.BIKE:
-            if cur_pos_x != max_x:
-                if right_obs == obstacles.PENGUIN:
-                    return actions.RIGHT
-            return run(cur_pos_x, cur_pos_y, obs, world, min_x, max_x)
+            return new(cur_pos_x, cur_pos_y, obs, world, min_x, max_x)
         case obstacles.BARRIER:
-            if cur_pos_x != max_x:
-                if right_obs == obstacles.PENGUIN:
-                    return actions.RIGHT
-            return run(cur_pos_x, cur_pos_y, obs, world, min_x, max_x)
+            return new(cur_pos_x, cur_pos_y, obs, world, min_x, max_x)
         case _:
             return actions.NONE
