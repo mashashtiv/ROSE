@@ -17,9 +17,10 @@ class Game(object):
     Implements the server for the car race
     """
 
-    def __init__(self, seed):
+    def __init__(self):
         self.hub = None
-        self.track = track.Track(seed=seed)
+        self.seed = ""
+        self.track = track.Track(seed=self.seed)
         self.looper = task.LoopingCall(self.loop)
         self.players = {}
         self.free_cars = set(range(config.number_of_cars))
