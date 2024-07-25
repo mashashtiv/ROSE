@@ -1,3 +1,4 @@
+import json
 import logging
 
 from twisted.internet import protocol
@@ -125,6 +126,27 @@ class WatcherProtocol(WebSocketServerProtocol):
         )
         self.hub.remove_watcher(self)
 
+    def onMessage(self, payload, isBinary):
+        if not isBinary:
+            message = json.loads(payload.decode('utf8'))
+            action = message.get("action")
+
+            if action == "set_seed":
+                seed = message.get("seed")
+                if seed:
+                    self.hub.game.set_seed(seed)
+                    self.send_message(json.dumps({"status": "Seed set successfully"}).encode('utf8'))
+                else:
+                    self.send_message(json.dumps({"error": "No seed provided"}).encode('utf8'))
+
+            elif action == "get_seed":
+                if self.hub.game.seed:
+                    self.send_message(json.dumps({"seed": self.hub.game.seed}).encode('utf8'))
+                else:
+                    self.send_message(json.dumps({"error": "No seed set"}).encode('utf8'))
+
+            else:
+                self.send_message(json.dumps({"error": "Unknown action"}).encode('utf8'))
     # Hub client interface
 
     def send_message(self, data):
@@ -187,3 +209,27 @@ class WebAdmin(resource.Resource):
                 request.setResponseCode(http.BAD_REQUEST)
                 return b"Invalid rate value %r, expected number" % value
         return b""
+
+    def render_GET(self, request):
+        print(request)
+        if request.uri.decode('utf-8').endswith('/seed'):
+            # Check if the seed is set
+            if self.game.seed is not None:
+                # Prepare the response object
+                response = {
+                    "seed": self.game.seed,
+                    "status": "Seed retrieved successfully"
+                }
+                # Convert the response object to JSON
+                response_json = json.dumps(response)
+                # Set the content type to JSON
+                request.setHeader('Content-Type', 'application/json')
+                return response_json.encode('utf-8')
+            else:
+                request.setResponseCode(400)
+                return b"No seed set"
+        else:
+            request.setResponseCode(404)
+            return b"Not Found"
+
+

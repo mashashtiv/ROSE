@@ -35,6 +35,12 @@ class App {
 
         const state = msg.payload;
 
+        if (msg.status) {
+            console.log("Status:", msg.status);
+        } else if (msg.seed) {
+            console.log("Seed value:", msg.seed);
+        }
+
         // Update
         this.controller.update(state);
         this.rate.update(state.rate);
@@ -78,6 +84,16 @@ class Client {
         this.socket = null;
         console.log("Reconnecting in " + this.reconnect_msec + " milliseconds");
         setTimeout(this.connect.bind(this), this.reconnect_msec);
+    }
+
+    setSeed(seed) {
+        const message = JSON.stringify({ action: "set_seed", seed: seed });
+        this.socket.send(message);
+    }
+
+    getSeed() {
+        const message = JSON.stringify({ action: "get_seed" });
+        this.socket.send(message);
     }
 }
 
