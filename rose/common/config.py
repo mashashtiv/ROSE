@@ -4,7 +4,7 @@ import os
 
 game_port = 8888
 web_port = 8880
-
+high_score_file = 'high_score.json'
 # Server
 
 game_rate = 1.0

@@ -8,6 +8,7 @@ from rose.common import actions, config, error, message, obstacles  # NOQA
 from . import track
 from . import player
 from . import score
+from . import db
 
 log = logging.getLogger("game")
 
@@ -28,7 +29,25 @@ class Game(object):
         self._rate = config.game_rate
         self.started = False
         self.timeleft = config.game_duration
+        self.db = db.Database()
+        self.db.load(config.high_score_file)
 
+    def update_high_score(self):
+        cur_player_high_score = max(self.players.values(), key=lambda p: p.score)
+        if self.seed not in self.db.records:
+            self.db.records[self.seed] = \
+                {
+                    "high_score": cur_player_high_score.score,
+                    "driver_name": cur_player_high_score.name}
+        else:
+            if cur_player_high_score > self.db.records[self.seed]["high_score"]:
+                self.db.records[self.seed] = \
+                    {
+                        "high_score": cur_player_high_score.score,
+                        "driver_name": cur_player_high_score.name
+                    }
+
+        self.db.save(config.high_score_file)
     @property
     def rate(self):
         return self._rate
@@ -63,6 +82,8 @@ class Game(object):
         self.started = False
         self.update_clients()
         self.print_stats()
+        self.update_high_score()
+        print('stop end')
 
     def add_player(self, name):
         if name in self.players:
